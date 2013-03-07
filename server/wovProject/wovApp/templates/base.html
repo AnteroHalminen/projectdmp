@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <title>{% block title %}webofvoice.com{% endblock %}</title>
+
+    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Patrick+Hand+SC">
+    <link rel="stylesheet" type="text/css" href="/static/css/global.css">
+    {% block styles %}
+    {% endblock %}
+
+    <!-- All views probably want jquery.js so should be fine to link it here. -->
+    <!-- TODO: Replace dev jquery.js below with compressed jquery.min.js when deploying. -->
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.js"></script>
+    {% block scripts %}
+    <!-- Add view specific scripts in inheriting templates. -->
+    {% endblock %}
+  </head>
+  <body {% block body_attributes %}class="darkRedBackground lightGreenText regularFont"{% endblock %}>
+    {% block body %}
+    <!--This template is for app wide stuff - replace body in inheriting template-->
+    {% endblock %}
+  </body>
+</html>
