@@ -11,6 +11,7 @@ public class CloudRecorder {
 	private static final String TAG = "CloudRecorder";
 	private MediaRecorder mediaRecorder = null;
 	private File outputFile = null;
+	private WebConnector webConnector = null;
 	
 	public CloudRecorder() {
 	}
@@ -26,7 +27,6 @@ public class CloudRecorder {
 		try {
 			outputFile = File.createTempFile("wovRec", ".3gp", outputDir);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			Log.e(TAG, "failed to create temporary file for sample (in " + outputDir.getPath() + ")");
 			return;
 		}
@@ -66,9 +66,12 @@ public class CloudRecorder {
 		if (null != outputFile) {
 
 			// TODO: Send the file @ outputFileName to cloud or wherever
-			
-			outputFile.delete();
-	        outputFile = null;
+			if (webConnector == null) webConnector = WebConnector.getInstance();
+
+			// hand the file over to webConnector that will delete the file when done
+			webConnector.uploadFile(outputFile);
+
+			outputFile = null;
 		}
 	}
 }

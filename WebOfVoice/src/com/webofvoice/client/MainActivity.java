@@ -1,5 +1,6 @@
 package com.webofvoice.client;
 
+
 import android.os.Bundle;
 import android.app.Activity;
 import android.util.Log;
@@ -10,7 +11,9 @@ import android.widget.Button;
 
 import com.google.android.gcm.GCMRegistrar;
 
+
 public class MainActivity extends Activity {
+		
 	public static String SENDER_ID = "5613935475";
 	public static String TAG = "MainActivity";
 	private CloudRecorder cloudRecorder = null;
@@ -21,14 +24,18 @@ public class MainActivity extends Activity {
 		
 		setContentView(R.layout.activity_main);
 		
+		WebConnector wc = WebConnector.getInstance();
+
 		GCMRegistrar.checkDevice(this);
 		GCMRegistrar.checkManifest(this);
 		final String regId = GCMRegistrar.getRegistrationId(this);
 		if (regId.equals("")) {
 			GCMRegistrar.register(this, SENDER_ID);
 		} else {
-		    Log.v(TAG, "Already registered");
+		    Log.v(TAG, "Already registered: " + regId);
 		}
+		
+		wc.registerTranceiver(regId);
 		
 		cloudRecorder = new CloudRecorder();
 
@@ -49,7 +56,7 @@ public class MainActivity extends Activity {
 				}
 			}
 		});
-    }
+	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -57,5 +64,4 @@ public class MainActivity extends Activity {
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
-
 }
