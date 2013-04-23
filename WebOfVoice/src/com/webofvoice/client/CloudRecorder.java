@@ -3,7 +3,6 @@ package com.webofvoice.client;
 import java.io.File;
 import java.io.IOException;
 
-import android.content.Context;
 import android.media.MediaRecorder;
 import android.util.Log;
 
@@ -16,20 +15,17 @@ public class CloudRecorder {
 	public CloudRecorder() {
 	}
 	
-	public void startRecording(Context currentContext) {
+	public void startRecording() {
 		
 		if (null != outputFile) {
 			Log.e(TAG, "spurious call to startRecording before stopRecording");
 			return;
 		}
-		File outputDir = currentContext.getCacheDir(); // context being the Activity pointer
-		outputFile = null; 
-		try {
-			outputFile = File.createTempFile("wovRec", ".3gp", outputDir);
-		} catch (IOException e) {
-			Log.e(TAG, "failed to create temporary file for sample (in " + outputDir.getPath() + ")");
+		outputFile = TempFileHelper.getInstance().makeTempFile("wovRec");
+		if (null == outputFile) {
 			return;
 		}
+		
 		String outputFileName = outputFile.getPath();
 		Log.v(TAG, "recording to " + outputFileName);
 

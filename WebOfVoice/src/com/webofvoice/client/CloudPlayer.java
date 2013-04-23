@@ -2,20 +2,24 @@ package com.webofvoice.client;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.Set;
 
-import android.content.ActivityNotFoundException;
-import android.content.Intent;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.net.Uri;
+import android.media.MediaPlayer.OnCompletionListener;
+import android.media.MediaPlayer.OnErrorListener;
 import android.os.Bundle;
+import android.util.Log;
 
 public class CloudPlayer {
 	
 	private MediaPlayer mediaPlayer;
+	public static final String TAG = "CloudPlayer";
 	
 	public class BroadcastMessage {
 		private static final String KEY_MESSAGE_ID = "message_id";
-		private static final String KEY_DOWNLOAD_URL = "download_url";
+		private static final String KEY_DOWNLOAD_URL = "sample_url";
 		private static final String KEY_CHANNEL_NAME = "channel_name";
 		private static final String KEY_LATITUDE = "latitude";
 		private static final String KEY_LONGITUDE = "longitude";
@@ -28,6 +32,15 @@ public class CloudPlayer {
 		public File file;
 		
 		public BroadcastMessage(Bundle gcmExtras) {
+			
+			
+			Set<String> keys = gcmExtras.keySet();
+			Iterator<String> keyIterator = keys.iterator();
+			while (keyIterator.hasNext()) {
+				Log.v(TAG, keyIterator.next());
+			}
+			
+			
 			if (gcmExtras.containsKey(KEY_MESSAGE_ID)) {
 				messageId = gcmExtras.getString(KEY_MESSAGE_ID);
 			}
@@ -48,6 +61,25 @@ public class CloudPlayer {
 	
 	private CloudPlayer() {
 		mediaPlayer = new MediaPlayer();
+		mediaPlayer.setOnCompletionListener(new OnCompletionListener() {
+			
+			@Override
+			public void onCompletion(MediaPlayer mp) {
+				Log.e(TAG, "Finished playing");
+		        mp.stop();
+			}
+		});
+		mediaPlayer.setOnErrorListener(new OnErrorListener() {
+			
+			@Override
+			public boolean onError(MediaPlayer mp, int what, int extra) {
+				Log.e(TAG, "MediaPlayer error");
+				mp.stop();
+				mp.reset();
+				// TODO Auto-generated method stub
+				return false;
+			}
+		});
 	}
 
 	private static CloudPlayer instance;
@@ -59,13 +91,23 @@ public class CloudPlayer {
 	
 	public void play(BroadcastMessage message) {
 		
-		message.file = TempFileHelper.getInstance().makeTempFile("wovPlay");
-		WebConnector.getInstance().downloadFile(message);
+		if (message.url == null || message.url.isEmpty()) {
+			return;
+		} else {
+			message.file = TempFileHelper.getInstance().makeTempFile("wovPlay");
+			WebConnector.getInstance().downloadFile(message);
+		}
 	}
 
 	// handle sample download completion
 	public void onSampleReady(BroadcastMessage message) {
         try {
+        	if (mediaPlayer.isLooping()) {
+        		Log.e(TAG, "loopin' around");
+        	}
+        	if (mediaPlayer.isPlaying()) {
+        		Log.e(TAG, "playin' around");
+        	}
 			mediaPlayer.setDataSource(message.file.getAbsolutePath());
 		} catch (IllegalArgumentException e) {
 			// TODO Auto-generated catch block
@@ -81,6 +123,7 @@ public class CloudPlayer {
 			e.printStackTrace();
 		}
         try {
+    		mediaPlayer.setAudioStreamType(AudioManager.STREAM_VOICE_CALL);
 			mediaPlayer.prepare();
 		} catch (IllegalStateException e) {
 			// TODO Auto-generated catch block

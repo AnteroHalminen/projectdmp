@@ -3,11 +3,7 @@ package com.webofvoice.client;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
-import android.widget.Toast;
-
 import com.google.android.gcm.GCMBaseIntentService;
 
 public class GCMIntentService extends GCMBaseIntentService {
@@ -26,8 +22,12 @@ public class GCMIntentService extends GCMBaseIntentService {
 	protected void onMessage(Context ctx, Intent intent) {
 		Log.v(TAG, "onMessage: " + ctx + ", " + intent);
 		Bundle extras = intent.getExtras();
+		
 		if (extras.containsKey("message_id")) {
 			Log.v(TAG, "WOOHOO - got notified of broadcast message " + extras.getString("message_id"));
+			CloudPlayer cp = CloudPlayer.getInstance();
+			CloudPlayer.BroadcastMessage message = cp.new BroadcastMessage(extras);
+			CloudPlayer.getInstance().play(message);
 		}
 	}
 

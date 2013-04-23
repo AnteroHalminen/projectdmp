@@ -1,15 +1,20 @@
 package com.webofvoice.client;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import android.os.AsyncTask;
 import android.util.Log;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.FileEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -83,7 +88,18 @@ public class WebConnector {
 			new FileUploader(file).execute();
 		}
 	}
-	
+
+	/**
+	 * Upload a file for broadcast
+	 * 
+	 * TODO: upload to Drive when implemented
+	 * 
+	 * @param file
+	 */
+	public void downloadFile(CloudPlayer.BroadcastMessage message) {
+		new FileDownloader(message).execute();
+	}
+
 	private void onMessageSent(String messageId) {
 		Log.v(TAG, "Message broadcast: " + messageId);
 	}
@@ -196,6 +212,63 @@ public class WebConnector {
 		protected void onPostExecute(String result) {
 			Log.v(TAG, "Result is: " + result);
 			onMessageSent(result);
+		}
+	}
+
+	private class FileDownloader extends AsyncTask<String, Integer, String> {
+		private CloudPlayer.BroadcastMessage message;
+
+		public FileDownloader(CloudPlayer.BroadcastMessage message) {
+			this.message = message;
+		}
+		
+		private String downloadFile() {
+			try {
+				HttpClient httpClient = new DefaultHttpClient();
+				HttpGet getRequest = new HttpGet(message.url);
+				HttpResponse response = httpClient.execute(getRequest);
+				if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+
+					// Write the downloaded file to the temp file
+					HttpEntity entity = response.getEntity();
+
+					// If the response does not enclose an entity, there is no need
+					// to worry about connection release
+					if (entity != null) {
+					    InputStream responseStream = entity.getContent();
+
+					    OutputStream tempFileStream = new FileOutputStream(message.file);
+						byte buf[]=new byte[4096];
+						int len;
+						while((len=responseStream.read(buf))>0) {
+						     tempFileStream.write(buf,0,len);
+						}
+						tempFileStream.close();
+						responseStream.close();
+						return "ok";
+				    }
+				} else {
+					Log.v(TAG, "Problem downloading file: status: " + response.getStatusLine());
+				}
+			} catch (ClientProtocolException e) {
+				Log.e(TAG, "ClientProtocolException" + e.getMessage());
+			} catch (IOException e) {
+				Log.e(TAG, "IOException" + e.getMessage());
+			}
+			return "fail";
+		}
+		
+    	@Override
+		protected String doInBackground(String... arg0) {
+			return downloadFile();
+    	}
+
+    	@Override
+		protected void onPostExecute(String result) {
+			Log.v(TAG, "Result is: " + result);
+			if (result == "ok") {
+				CloudPlayer.getInstance().onSampleReady(message);
+			}
 		}
 	}
 

@@ -37,7 +37,9 @@ public class MainActivity extends Activity {
 		
 		// pass registration ID to server
 		wc.registerTranceiver(regId);
-		
+
+		// get cache dir
+		TempFileHelper.getInstance().setContext(getApplicationContext());
 		cloudRecorder = new CloudRecorder();
 
 		final Button tangent = (Button) findViewById(R.id.tangentButton);
@@ -47,7 +49,7 @@ public class MainActivity extends Activity {
 			public boolean onTouch(View v, MotionEvent event) {
 				switch (event.getAction()) {
 				case MotionEvent.ACTION_DOWN:
-					cloudRecorder.startRecording(v.getContext());
+					cloudRecorder.startRecording();
 					return true;
 				case MotionEvent.ACTION_UP:
 					cloudRecorder.stopRecording();
