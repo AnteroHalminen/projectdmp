@@ -35,6 +35,7 @@ public class MainActivity extends Activity {
 		    Log.v(TAG, "Already registered: " + regId);
 		}
 		
+		// pass registration ID to server
 		wc.registerTranceiver(regId);
 		
 		cloudRecorder = new CloudRecorder();

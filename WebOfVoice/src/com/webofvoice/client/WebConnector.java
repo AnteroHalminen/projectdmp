@@ -42,7 +42,6 @@ public class WebConnector {
 	private static WebConnector instance = null;
 
     private WebConnector() {
-        //lots of initialization code
     }
 
     public static synchronized WebConnector getInstance() {
@@ -59,15 +58,11 @@ public class WebConnector {
     		this.tranceiverID = tranceiverID;
 
 			// TODO: get location from location API
-			// new WebServiceCaller().updateLocation(Double.valueOf(60.1833), Double.valueOf(24.8333));
-			// new WebServiceCaller().tuneTranceiver("WhiteNoise");
+			//new WebServiceCaller().updateLocation(Double.valueOf(60.1833), Double.valueOf(24.8333));
+			new WebServiceCaller().tuneTranceiver("WhiteNoise");
     	}
 	}
 	
-	public void doTest() {
-		new WebServiceCaller().execute();
-	}
-
 	public void registerTranceiver(String gcmRegistrationID) {
 		new WebServiceCaller().registerTranceiver(gcmRegistrationID, "oretna.nenimlah@gmail.com");
 	}
@@ -175,6 +170,14 @@ public class WebConnector {
 				} else {
 					String rtext = EntityUtils.toString(response.getEntity());
 					Log.v(TAG, "Problem uploading: status: " + response.getStatusLine());
+					String[] srt = rtext.split("\n");
+					for (int i = 0; i < srt.length; i += 10) {
+						String p = "";
+						for (int j = i; j < srt.length && j < i + 10; ++j) {
+							p += srt[j] + "\n";
+						}
+						Log.v("r" + i + ":", p);
+					}
 				}
 			} catch (ClientProtocolException e) {
 				Log.e(TAG, "ClientProtocolException" + e.getMessage());
