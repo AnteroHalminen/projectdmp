@@ -108,30 +108,27 @@ public class CloudPlayer {
         	if (mediaPlayer.isPlaying()) {
         		Log.e(TAG, "playin' around");
         	}
+        	mediaPlayer.stop();
+        	mediaPlayer.reset();
 			mediaPlayer.setDataSource(message.file.getAbsolutePath());
 		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.e(TAG, e.toString());
 		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.e(TAG, e.toString());
 		} catch (IllegalStateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.e(TAG, e.toString());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.e(TAG, e.toString());
 		}
         try {
-    		mediaPlayer.setAudioStreamType(AudioManager.STREAM_VOICE_CALL);
+    		mediaPlayer.setAudioStreamType(AudioManager.STREAM_ALARM);
 			mediaPlayer.prepare();
 		} catch (IllegalStateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.e(TAG, e.toString());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.e(TAG, e.toString());
 		}
         mediaPlayer.start();
+        mediaPlayer.seekTo(0);
 	}
 }
